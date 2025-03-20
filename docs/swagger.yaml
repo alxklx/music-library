@@ -1,0 +1,236 @@
+basePath: /
+definitions:
+  delivery.SongRequest:
+    description: Структура для добавления новой песни
+    properties:
+      group:
+        example: Muse
+        type: string
+      song:
+        example: Supermassive Black Hole
+        type: string
+    type: object
+  domain.Song:
+    properties:
+      group:
+        type: string
+      id:
+        type: integer
+      link:
+        type: string
+      releaseDate:
+        type: string
+      song:
+        type: string
+      text:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: API для управления онлайн-библиотекой песен
+  title: Music Library API
+  version: "1.0"
+paths:
+  /songs:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список песен с фильтрацией и пагинацией
+      parameters:
+      - description: Фильтр по группе
+        in: query
+        name: group
+        type: string
+      - description: Фильтр по названию песни
+        in: query
+        name: song
+        type: string
+      - description: Фильтр по дате релиза
+        in: query
+        name: releaseDate
+        type: string
+      - default: 10
+        description: Лимит записей
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Song'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Получение списка песен
+      tags:
+      - songs
+    post:
+      consumes:
+      - application/json
+      description: Добавляет новую песню и обогащает её данными из внешнего API
+      parameters:
+      - description: Данные песни
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/delivery.SongRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Song'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Добавление новой песни
+      tags:
+      - songs
+  /songs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет песню по её ID
+      parameters:
+      - description: ID песни
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Удаление песни
+      tags:
+      - songs
+    get:
+      consumes:
+      - application/json
+      description: Возвращает данные песни по её идентификатору
+      parameters:
+      - description: ID песни
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Song'
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Получение песни по ID
+      tags:
+      - songs
+    put:
+      consumes:
+      - application/json
+      description: Обновляет информацию о песне по её ID
+      parameters:
+      - description: ID песни
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Новые данные песни
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Song'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid ID or request body
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Обновление данных песни
+      tags:
+      - songs
+  /songs/{id}/verses:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает куплеты песни с пагинацией
+      parameters:
+      - description: ID песни
+        in: path
+        name: id
+        required: true
+        type: integer
+      - default: 1
+        description: Лимит куплетов
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Смещение
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: Invalid ID
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Получение текста песни с пагинацией по куплетам
+      tags:
+      - songs
+swagger: "2.0"
